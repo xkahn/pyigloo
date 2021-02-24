@@ -72,6 +72,17 @@ class igloo:
         result = self.igloo.post(url, json=params)
         return result
 
+    def get_web_uri (self, url):
+        """
+        Using the login key, pull and return a full igloo web page instead of an API call
+
+        url: The URL fragment (not including ENDPOINT) to retrieve
+        returns: The full requests response object
+        """
+        url = '{0}{1}'.format(self.endpoint, url)
+        result = self.igloo.get(url)
+        return result
+
     def community_view (self):
         """ 
         APIv1 community/view call
