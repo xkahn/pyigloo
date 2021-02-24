@@ -7,6 +7,7 @@ import pprint
 from dotenv import load_dotenv
 if os.getenv("ENV") != None:
     load_dotenv('.env.' + os.getenv("ENV"))
+
 load_dotenv()
 
 try:
