@@ -104,3 +104,16 @@ class igloo:
         result = self.igloo.post(url)
         return result
 
+    def objects_bypath (self, path, domain = None):
+        """
+        APIv1 objects/byPath call
+
+        https://source.redhat.com/cmedia/api-docs/#/Objects/get__api_api_svc_objects_byPath
+        Given a URI fragment, return information about the object
+
+        This is the most common API call, allowing you to dereference a URL to an ID
+        """
+        url = '{0}{1}/objects/byPath'.format(self.endpoint, self.IGLOO_API_ROOT_V1)
+        headers = {b'Accept': 'application/json'}
+        result = self.igloo.get(url, headers=headers, params={'path': path, 'domain': domain})
+        return result.json()['response']
