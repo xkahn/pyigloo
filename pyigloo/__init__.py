@@ -131,6 +131,19 @@ class igloo:
         result = self.igloo.post(url, headers=headers, params=payload)
         return result.json()['dictionary']
 
+    def apisync_view_profile (self, userIds = []):
+        """
+        APIv1 /.api/api.svc/apisync/view_profile call
+        
+        https://source.redhat.com/cmedia/api-docs/#/APISync/post__api_api_svc_apisync_view_profile
+        Return a FULL list of user profile settings
+        """
+        url = '{0}{1}/apisync/view_profile'.format(self.endpoint, self.IGLOO_API_ROOT_V1)
+        payload = {"userIds": userIds}
+        headers =  {b'Accept': 'application/json'}
+        result = self.igloo.post(url, headers=headers, params=payload)
+        return result.json()['dictionary']
+    
     def community_usergroups_view (self, usergroupId):
         """
         APIv1 /community/usergroups/{usergroupId}/view call
@@ -140,4 +153,31 @@ class igloo:
         url = '{0}{1}/community/usergroups/{2}/view'.format(self.endpoint, self.IGLOO_API_ROOT_V1, usergroupId)
         headers =  {b'Accept': 'application/json'}
         result = self.igloo.get(url, headers=headers)
+        return result.json()['response']
+
+    def usergroups_members_view (self, usergroupId):
+        """
+        APIv1 /usergroups/{usergroupId}/members/view calls
+
+        ***undocumented*** but may be similar to
+        https://source.redhat.com/cmedia/api-docs/#/Usergroups/get__api_api_svc_usergroups_members_view
+
+        Return a list of members of the specified group
+        """
+        url = '{0}{1}/usergroups/{2}/members/view'.format(self.endpoint, self.IGLOO_API_ROOT_V1, usergroupId)
+        headers = {b'Accept': 'application/json'}
+        result = self.igloo.get(url, headers=headers)
+        return result.json()['response']
+
+    def users_searchbyname (self, name):
+        """
+        APIv1 /.api/api.svc/users/searchByName calls
+
+        Searches for users by name (does partial matching).
+        https://source.redhat.com/cmedia/api-docs/#/Users/get__api_api_svc_users_searchByName
+        """
+        url = '{0}{1}/users/searchByName'.format(self.endpoint, self.IGLOO_API_ROOT_V1)
+        payload = {"criteria": name}
+        headers =  {b'Accept': 'application/json'}
+        result = self.igloo.get(url, headers=headers, params=payload)
         return result.json()['response']
