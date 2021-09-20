@@ -181,3 +181,13 @@ class igloo:
         headers =  {b'Accept': 'application/json'}
         result = self.igloo.get(url, headers=headers, params=payload)
         return result.json()['response']
+
+    def forumchannels_forumtopics_view (self, forumChannelId):
+        """
+        APIv1 /forumchannels/{forumChannelId}/forumtopics/view call
+
+        """
+        url = '{0}{1}/forumchannels/{2}/forumtopics/view'.format(self.endpoint, self.IGLOO_API_ROOT_V1, forumChannelId)
+        headers =  {b'Accept': 'application/json'}
+        result = self.igloo.get(url, headers=headers)
+        return result.json()['response']
