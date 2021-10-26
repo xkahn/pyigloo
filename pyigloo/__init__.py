@@ -169,6 +169,18 @@ class igloo:
         result = self.igloo.get(url, headers=headers)
         return result.json()['response']
 
+    def spaces_groups (self, spaceId):
+        """
+        APIv1 /.api/api.svc/spaces/{spaceId}/groups call
+
+        https://customercare.igloosoftware.com/cmedia/api-docs/#/Spaces/get__api_api_svc_spaces__spaceId__groups
+        Gets a list of all the groups within a given space.
+        """
+        url = '{0}{1}/spaces/{2}/groups'.format(self.endpoint, self.IGLOO_API_ROOT_V1, spaceId)
+        headers = {b'Accept': 'application/json'}
+        result = self.igloo.get(url, headers=headers)
+        return result.json()['response']
+
     def users_searchbyname (self, name):
         """
         APIv1 /.api/api.svc/users/searchByName calls
