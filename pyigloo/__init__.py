@@ -118,6 +118,38 @@ class igloo:
         result = self.igloo.get(url, headers=headers, params={'path': path, 'domain': domain})
         return result.json()['response']
 
+    def objects_children_view (self, objectid, max=10, start=0, orderby="None", future=True):
+        """
+        APIv1 objects/{objectId}/children/view call
+        
+        https://customercare.igloosoftware.com/cmedia/api-docs/#/Objects/get__api_api_svc_objects__objectId__children_view
+        Given an object id, return a list of the children contained in the object
+        """
+        url = '{0}{1}/objects/{2}/children/view'.format(self.endpoint, self.IGLOO_API_ROOT_V1, objectid)
+        headers =  {b'Accept': 'application/json'}
+        params = {'maxcount': max, 'startindex': start, 'orderby': orderby, 'includefuturepublished': future}
+        result = self.igloo.get(url, headers=headers, params=params)
+        return result.json()['response']
+
+    def get_all_children_from_object (self, objectid, orderby="None", future=True, pagesize=100, current_page=0):
+        """ 
+        Return a generator object that handles pagination for us
+        for objects/{objectId}/children/view
+        """
+        items = self.objects_children_view(objectid, pagesize, pagesize * current_page, orderby, future)
+        total = int(items['totalCount'])
+        returned = 0
+        while True:
+            for item in items["items"]:
+                returned += 1
+                yield item
+
+            if returned >= total:
+                break
+
+            current_page += 1
+            items = self.objects_children_view(objectid, pagesize, current_page * pagesize, orderby, future)
+
     def apisync_view_usergroups (self, userIds = []):
         """
         APIv1 apisync/view_usergroups call
