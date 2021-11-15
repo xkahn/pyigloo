@@ -49,16 +49,21 @@ wikis = igloo.get_all_children_from_object(root["id"])
 for wiki in wikis:
     fn = os.path.basename(wiki["href"] + ".html")
     print (fn + " -> " + wiki["title"])
+
     if not args.nowiki:
         with open(args.output + "/" + fn, 'w') as o:
             o.write(wiki["content"])
+
     if not args.noattachment:
         attachments_path = args.output + "/" + os.path.basename(wiki["href"])
         attachments = igloo.attachments_view(wiki["id"])
+
         if int(attachments["totalCount"]) > 0:
             if args.verbose:
                 print (attachments_path)
+
             os.makedirs(attachments_path, exist_ok=True)
+
             for attachment in attachments["items"]:
                 print (attachments_path + "/" + attachment["RelationTitle"])
                 with open(attachments_path + "/" + attachment["RelationTitle"], "wb") as a:
