@@ -150,6 +150,18 @@ class igloo:
             current_page += 1
             items = self.objects_children_view(objectid, pagesize, current_page * pagesize, orderby, future)
 
+    def attachments_view (self, objectid):
+        """
+        APIv1 attachments/{objectId}/view call
+
+        https://customercare.igloosoftware.com/cmedia/cmedia/api-docs/#/Attachments/get__api_api_svc_attachments__objectId__view
+        Given an object, return the list of attachments
+        """
+        url = '{0}{1}/attachments/{2}/view'.format(self.endpoint, self.IGLOO_API_ROOT_V1, objectid)
+        headers = {b'Accept': 'application/json'}
+        result = self.igloo.get(url, headers=headers)
+        return result.json()['response']
+
     def apisync_view_usergroups (self, userIds = []):
         """
         APIv1 apisync/view_usergroups call
