@@ -31,6 +31,9 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("uri", help="Partial URL (URI) path of wiki channel")
 parser.add_argument("output", help="Directory to save files to")
+parser.add_argument("-w", "--nowiki", help="Do not save the wiki article", action="store_true")
+parser.add_argument("-a", "--noattachment", help="Do not save the wiki attachments", action="store_true")
+parser.add_argument("-v", "--verbose", help="Be more verbose in output", action="store_true")
 args = parser.parse_args()
 
 igloo = pyigloo.igloo(params)
@@ -46,5 +49,17 @@ wikis = igloo.get_all_children_from_object(root["id"])
 for wiki in wikis:
     fn = os.path.basename(wiki["href"] + ".html")
     print (fn + " -> " + wiki["title"])
-    with open(args.output + "/" + fn, 'w') as o:
-        o.write(wiki["content"])
+    if not args.nowiki:
+        with open(args.output + "/" + fn, 'w') as o:
+            o.write(wiki["content"])
+    if not args.noattachment:
+        attachments_path = args.output + "/" + os.path.basename(wiki["href"])
+        attachments = igloo.attachments_view(wiki["id"])
+        if int(attachments["totalCount"]) > 0:
+            if args.verbose:
+                print (attachments_path)
+            os.makedirs(attachments_path, exist_ok=True)
+            for attachment in attachments["items"]:
+                print (attachments_path + "/" + attachment["RelationTitle"])
+                with open(attachments_path + "/" + attachment["RelationTitle"], "wb") as a:
+                    a.write(igloo.get_web_uri("/download" + attachment["RelationHref"]).content)
