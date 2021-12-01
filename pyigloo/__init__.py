@@ -247,3 +247,14 @@ class igloo:
         headers =  {b'Accept': 'application/json'}
         result = self.igloo.get(url, headers=headers)
         return result.json()['response']
+
+    def user_get (self, userId):
+        """
+        APIv2 /.api2/api/User/{userId}/Get
+        
+        Returns user status information including email and last login date
+        undocumented
+        """
+        url = '{0}{1}/User/{2}/Get'.format(self.endpoint, self.IGLOO_API_ROOT_V2, userId)
+        result = self.igloo.get(url)
+        return result.json()
