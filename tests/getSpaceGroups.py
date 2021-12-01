@@ -25,6 +25,10 @@ def print_usergroup (group):
                                    group["name"],
                                    group["numMembers"]))
 
+def lookup_user (igloo, id):
+    u = igloo.user_get(id)
+    return u["FullName"] + ' <' + u["Username"] + '>'
+
 params = {
         "ACCESS_KEY":   os.getenv("ACCESS_KEY"),
         "API_KEY":      os.getenv("API_KEY"),
@@ -44,5 +48,5 @@ root = igloo.objects_bypath(args.uri)
 groups = igloo.spaces_groups(root['id'])
 group = [x for x in groups['items'] if x['name'] == 'Space Admins'][0]
 people = igloo.usergroups_members_view(group['id'])
-lpeople = [x['name']['fullName'] + ' <' + x['namespace'] + '@redhat.com>' for x in people['items']]
-print (root['title'] + ',' + root['href'] + ',' + root['id'] + ',' + str(len(lpeople)) + "," + "; ".join(lpeople))
+lpeople = [lookup_user(igloo, x['id']) for x in people['items']]
+print ('"' + root['title'] + '",' + root['href'] + ',' + root['id'] + ',' + str(len(lpeople)) + "," + "; ".join(lpeople))
