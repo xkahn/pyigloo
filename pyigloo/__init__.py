@@ -225,12 +225,45 @@ class igloo:
         result = self.igloo.get(url, headers=headers)
         return result.json()['response']
 
+    def search_members (self, query, rows=None, page=None, qType=None, hl=None, groupId=None, groupIds=None, parent=None):
+        """
+        APIv1 /.api/api.svc/search/members call
+
+        Searches for users by search engine
+        https://customercare.igloosoftware.com/cmedia/api-docs/#/Search/get__api_api_svc_search_members
+        """
+        url = '{0}{1}/search/members'.format(self.endpoint, self.IGLOO_API_ROOT_V1)
+        params = {"q": query, "qType": qType, "rows": rows, "page": page, "hl": hl, "groupId": groupId, "groupIds": groupIds, "parent": parent}
+        headers =  {b'Accept': 'application/json'}
+        result = self.igloo.get(url, headers=headers, params=params)
+        return result.json()['response']
+
+    def get_all_search_members (self, query, rows=100, page=0, qType=None, hl=None, groupId=None, groupIds=None, parent=None):
+        """ 
+        Return a generator object that handles pagination for us
+        for search/members
+        """
+        items = self.search_members(query, rows, rows * page, qType, hl, groupId, groupIds, parent)
+        total = int(items['totalCount'])
+        returned = 0
+        while True:
+            for item in items["items"]:
+                returned += 1
+                yield item
+
+            if returned >= total:
+                break
+
+            page += 1
+            items = self.search_members(query, rows, rows * page, qType, hl, groupId, groupIds, parent)
+
+
     def users_searchbyname (self, name):
         """
-        APIv1 /.api/api.svc/users/searchByName calls
+        APIv1 /.api/api.svc/users/searchByName call
 
         Searches for users by name (does partial matching).
-        https://source.redhat.com/cmedia/api-docs/#/Users/get__api_api_svc_users_searchByName
+        https://customercare.igloosoftware.com/cmedia/api-docs/#/Users/get__api_api_svc_users_searchByName
         """
         url = '{0}{1}/users/searchByName'.format(self.endpoint, self.IGLOO_API_ROOT_V1)
         payload = {"criteria": name}
