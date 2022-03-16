@@ -118,6 +118,18 @@ class igloo:
         result = self.igloo.get(url, headers=headers, params={'path': path, 'domain': domain})
         return result.json()['response']
 
+    def objects_view (self, objectid):
+        """
+        APIv1 objects/{objectId}/view call
+
+        https://customercare.igloosoftware.com/cmedia/api-docs/#/Objects/get__api_api_svc_objects__objectId__view
+        Given am object id, return information about the object
+        """
+        url = '{0}{1}/objects/{2}/view'.format(self.endpoint, self.IGLOO_API_ROOT_V1, objectid)
+        headers =  {b'Accept': 'application/json'}
+        result = self.igloo.get(url, headers=headers)
+        return result.json()['response']
+
     def objects_children_view (self, objectid, max=10, start=0, orderby="None", future=True):
         """
         APIv1 objects/{objectId}/children/view call
@@ -149,6 +161,38 @@ class igloo:
 
             current_page += 1
             items = self.objects_children_view(objectid, pagesize, current_page * pagesize, orderby, future)
+
+    def objects_comments_view (self, objectid, max=10, start=0, getdrafts=False):
+        """
+        APIv1 objects/{objectId}/comments/view call
+
+        https://source.redhat.com/cmedia/api-docs/#/Objects/get__api_api_svc_objects__objectId__comments_view
+        Gets Comments (if any) associated with the specified Object
+        """
+        url = '{0}{1}/objects/{2}/comments/view'.format(self.endpoint, self.IGLOO_API_ROOT_V1, objectid)
+        headers =  {b'Accept': 'application/json'}
+        params = {'maxcount': max, 'startindex': start, 'getdrafts': getdrafts}
+        result = self.igloo.get(url, headers=headers, params=params)
+        return result.json()['response']
+
+    def get_all_comments_from_object (self, objectid, getdrafts=False, pagesize=100, current_page=0):
+        """ 
+        Return a generator object that handles pagination for us
+        for objects/{objectId}/comments/view
+        """
+        items = self.objects_comments_view(objectid, pagesize, pagesize * current_page, getdrafts)
+        total = int(items['totalCount'])
+        returned = 0
+        while True:
+            for item in items["items"]:
+                returned += 1
+                yield item
+
+            if returned >= total:
+                break
+
+            current_page += 1
+            items = self.objects_comments_view(objectid, pagesize, current_page * pagesize, getdrafts)
 
     def attachments_view (self, objectid):
         """
