@@ -35,6 +35,10 @@ class types:
             {"children": True,
             "content": True,
             "type": "channel"},
+        "MicroBlogChannel":
+            {"children": True,
+            "content": True,
+            "type": "channel"},
             
         # Content
         "WikiArticle":
@@ -49,9 +53,17 @@ class types:
             {"children": False,
             "content": True,
             "type": "article"},
+        "Folder":
+            {"Children": True,
+            "content": False,
+            "type": "channel"},
         "Document":
             {"children": False,
             "content": False,
+            "type": "article"},
+        "CalendarEvent":
+            {"children": False,
+            "content": True,
             "type": "article"},
 
         # Sub-content
@@ -63,6 +75,10 @@ class types:
             {"children": False,
             "content": True,
             "type": "comment"},
+        "relatedObject":
+            {"children": False,
+            "content": True,
+            "type": "attachment"},
 
         # Search Results
         "IglooList":
