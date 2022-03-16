@@ -75,8 +75,8 @@ def get_userinfo (user):
 
 def display_comment (writer, comment):
     writer.writerow([
-        get_userinfo(comment["created"]) + " replied",
-        comment["href"],
+        '=HYPERLINK("' + os.getenv("API_ENDPOINT") + "/".join(comment["href"].split("/")[2:-1]) + "#anchor_" + comment["href"].split("/")[-1] + '","' + get_userinfo(comment["created"]) + ' replied")',
+        "/" + "/".join(comment["href"].split("/")[2:-1]) + "#anchor_" + comment["href"].split("/")[-1],
         pyigloo.igloodates.date(comment["modified"]["date"]),
         pyigloo.iglootypes.types(comment),
         None,
