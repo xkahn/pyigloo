@@ -1,43 +1,85 @@
-types = {
-    # Containers
-    "Community":
-        {"children": True,
-        "content": False},
-    "Space":
-        {"children": True,
-        "content": False},
-    "Page":
-        {"children": True,
-        "content": False},
+class types:
+    iglootypes = {
+        # Containers
+        "Community":
+            {"children": True,
+            "content": False,
+            "type": "container"},
+        "Space":
+            {"children": True,
+            "content": False,
+            "type": "container"},
+        "Page":
+            {"children": True,
+            "content": False,
+            "type": "container"},
 
-    # Content Channels
-    "Wiki":
-        {"children": True,
-        "content": True},
-    "BlogChannel":
-        {"children": True,
-        "content": True},
-    "FolderChannel":
-        {"children": True,
-        "content": True},
-    "ForumChannel":
-        {"children": True,
-        "content": True},
-    "Calendar":
-        {"children": True,
-        "content": True},
-        
-    # Content
-    "WikiArticle":
-        {"children": False,
-        "content": True},
-    "BlogArticle":
-        {"children": False,
-        "content": True},
+        # Content Channels
+        "Wiki":
+            {"children": True,
+            "content": True,
+            "type": "channel"},
+        "BlogChannel":
+            {"children": True,
+            "content": True,
+            "type": "channel"},
+        "FolderChannel":
+            {"children": True,
+            "content": True,
+            "type": "channel"},
+        "ForumChannel":
+            {"children": True,
+            "content": True,
+            "type": "channel"},
+        "Calendar":
+            {"children": True,
+            "content": True,
+            "type": "channel"},
+            
+        # Content
+        "WikiArticle":
+            {"children": False,
+            "content": True,
+            "type": "article"},
+        "BlogArticle":
+            {"children": False,
+            "content": True,
+            "type": "article"},
+        "ForumTopic":
+            {"children": False,
+            "content": True,
+            "type": "article"},
+        "Document":
+            {"children": False,
+            "content": False,
+            "type": "article"},
 
-    # Search Results
-    "IglooList":
-        {"children": True,
-        "content": False}
+        # Sub-content
+        "ForumPost":
+            {"children": False,
+            "content": True,
+            "type": "article"},
+        "Comment":
+            {"children": False,
+            "content": True,
+            "type": "comment"},
 
-}
+        # Search Results
+        "IglooList":
+            {"children": True,
+            "content": False,
+            "type": "list"}
+    }
+
+    def __init__ (self, mytype):
+        if (type(mytype) == "<class 'str'>"):
+            self.mytype = mytype
+        else:
+            self.mytype = mytype["__type"]
+        self.info = self.iglootypes[self.mytype.split(":")[0]]
+
+    def __str__(self):
+        return self.mytype.split(":")[0]
+
+    def get_info (self):
+        return self.info
