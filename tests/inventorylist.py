@@ -27,6 +27,7 @@ def display_container (writer, containerid, tz):
         '=HYPERLINK("' + os.getenv("API_ENDPOINT")[:-1] + info["href"] + '","' + info["title"] + '")',
         info["href"],
         pyigloo.igloodates.date(info["created"]["date"], tz).local,
+        pyigloo.igloodates.date(info["modified"]["date"], tz).local,
         pyigloo.iglootypes.types(info),
         None,
         get_userinfo(info["created"]),
@@ -51,6 +52,7 @@ def display_channel (writer, channelid, tz):
         '=HYPERLINK("' + os.getenv("API_ENDPOINT")[:-1] + info["href"] + '","' + info["title"] + '")',
         info["href"],
         pyigloo.igloodates.date(info["created"]["date"], tz).local,
+        pyigloo.igloodates.date(info["modified"]["date"], tz).local,
         pyigloo.iglootypes.types(info),
         None,
         get_userinfo(info["created"]),
@@ -76,8 +78,9 @@ def get_userinfo (user):
 
 def display_comment (writer, comment, tz):
     writer.writerow([
-        '=HYPERLINK("' + os.getenv("API_ENDPOINT") + "/".join(comment["href"].split("/")[2:-1]) + "#anchor_" + comment["href"].split("/")[-1] + '","' + get_userinfo(comment["created"]) + ' replied")',
+        '=HYPERLINK("' + os.getenv("API_ENDPOINT") + "/".join(comment["href"].split("/")[2:-1]) + "#anchor_" + comment["href"].split("/")[-1] + '","    ' + get_userinfo(comment["created"]) + ' replied")',
         "/" + "/".join(comment["href"].split("/")[2:-1]) + "#anchor_" + comment["href"].split("/")[-1],
+        pyigloo.igloodates.date(comment["created"]["date"], tz).local,
         pyigloo.igloodates.date(comment["modified"]["date"], tz).local,
         pyigloo.iglootypes.types(comment),
         None,
@@ -91,8 +94,9 @@ def display_comment (writer, comment, tz):
 
 def display_article (writer, article, tz):
     writer.writerow([
-        '=HYPERLINK("' + os.getenv("API_ENDPOINT")[:-1] + article["href"] + '","' + article["title"] + '")',
+        '=HYPERLINK("' + os.getenv("API_ENDPOINT")[:-1] + article["href"] + '","  ' + article["title"] + '")',
         article["href"],
+        pyigloo.igloodates.date(article["created"]["date"], tz).local,
         pyigloo.igloodates.date(article["modified"]["date"], tz).local,
         pyigloo.iglootypes.types(article),
         article["IsArchived"] and article["isPublished"],
@@ -117,9 +121,10 @@ def display_attachments (writer, article, tz):
 
 def display_attachment (writer, article, attachment, tz):
     writer.writerow([
-        '=HYPERLINK("' + os.getenv("API_ENDPOINT")[:-1] + attachment["RelationHref"] + '","' + attachment["RelationTitle"] + '")',
+        '=HYPERLINK("' + os.getenv("API_ENDPOINT")[:-1] + attachment["RelationHref"] + '","   ' + attachment["RelationTitle"] + '")',
         article["href"],
         pyigloo.igloodates.date(attachment["Created"], tz).local,
+        None,
         pyigloo.iglootypes.types(attachment),
         attachment["IsHidden"],
         get_userinfo(attachment["CreatedBy"]),
@@ -155,11 +160,12 @@ writer =  csv.writer(args.writefile, quoting=csv.QUOTE_NONNUMERIC)
 
 writer.writerow(["Title",
                 "URI",
+                "Created",
                 "Last Updated",
                 "Content type",
                 "Hidden?",
-                "Owner(s)",
-                "Editors (maintainers)",
+                "Creator",
+                "Modifier",
                 "Total views",
                 "Version",
                 "Attachments",
