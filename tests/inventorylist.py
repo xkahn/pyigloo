@@ -34,52 +34,82 @@ class file_writer:
                 self.worksheet = workbook.add_worksheet()
         self.csv = csv
         if workbook:
-            self.worksheet.freeze_panes(1, 0)
-            self.levels[0] = self.workbook.add_format()
-            self.levels[1] = self.workbook.add_format()
-            self.levels[2] = self.workbook.add_format()
-            self.levels[3] = self.workbook.add_format()
-            self.levels[4] = self.workbook.add_format()
-            self.levels[0].set_font_name('Red Hat Text')
-            self.levels[1].set_indent(1)
-            self.levels[1].set_num_format("   >> @")
-            self.levels[1].set_font_name('Red Hat Text')
-            self.levels[2].set_indent(2)
-            self.levels[2].set_num_format("      -- @")
-            self.levels[2].set_font_name('Red Hat Text')
-            self.levels[3].set_font_color("#777777")
-            self.levels[3].set_font_name('Red Hat Text')
-            self.levels[4].set_num_format('yyyy/mm/dd')
-            self.levels[4].set_font_name('Courier New')
-            self.worksheet.set_column(0, 0, 40)
-            self.worksheet.set_column(1, 1, 40)
-            self.worksheet.set_column(2, 7, 15)
-            self.worksheet.set_column(8, 8, 15)
-            self.worksheet.set_column(10, 11, 25)
+            self.setup_styles()
+
+    def setup_styles (self):
+        self.worksheet.freeze_panes(1, 0)
+
+        self.levels[0] = self.workbook.add_format()
+        self.levels[1] = self.workbook.add_format()
+        self.levels[2] = self.workbook.add_format()
+        self.levels[3] = self.workbook.add_format()
+        self.levels[4] = self.workbook.add_format()
+        self.levels[5] = self.workbook.add_format()
+        self.levels[6] = self.workbook.add_format()
+        self.levels[7] = self.workbook.add_format()
+
+        self.levels[0].set_font_name('Red Hat Text')
+
+        self.levels[1].set_indent(1)
+        self.levels[1].set_num_format("   >> @")
+        self.levels[1].set_font_name('Red Hat Text')
+
+        self.levels[2].set_indent(2)
+        self.levels[2].set_num_format("      -- @")
+        self.levels[2].set_font_name('Red Hat Text')
+
+        self.levels[3].set_font_color("#777777")
+        self.levels[3].set_font_name('Red Hat Text')
+
+        self.levels[4].set_num_format('yyyy/mm/dd')
+        self.levels[4].set_font_name('Courier New')
+
+        self.levels[5].set_num_format('yyyy/mm/dd')
+        self.levels[5].set_font_name('Courier New')
+        self.levels[5].set_font_color('#cccccc')
+
+        self.levels[6].set_font_color('#cccccc')
+        self.levels[6].set_font_name('Red Hat Text')
+
+        self.levels[7].set_bold()
+        self.levels[7].set_font_name('Red Hat Text')
+
+        self.worksheet.set_column(0, 0, 40)
+        self.worksheet.set_column(1, 1, 40)
+        self.worksheet.set_column(2, 7, 15)
+        self.worksheet.set_column(8, 8, 15)
+        self.worksheet.set_column(10, 11, 25)
 
     def writerow (self, data, indent=0, outline=0, collapse=False):
         if self.worksheet:
             self.worksheet.write_row(self.row, 0, data, self.levels[0])
             if self.row > 0:
+                self.worksheet.write(self.row, 0, data[0], self.levels[7])
                 self.worksheet.write(self.row, 1, data[1], self.levels[3])
-            self.write_datevalue(data, 2)
-            self.write_datevalue(data, 3)
-            self.write_datevalue(data, 4)
-            self.write_datevalue(data, 5)
-            self.write_datevalue(data, 6)
-            self.write_datevalue(data, 7)
+            self.write_datevalue(data, 2, outline != 0) # channel create
+            self.write_datevalue(data, 3, outline != 1) # article create
+            self.write_datevalue(data, 4, outline != 2) # comment create
+            self.write_datevalue(data, 5, outline != 0) # channel update
+            self.write_datevalue(data, 6, outline != 1) # article update
+            self.write_datevalue(data, 7, outline != 2) # comment update
             if self.doGroup and outline > 0:
                 self.worksheet.set_row(self.row, None, None, {'level': outline, 'hidden': collapse})
             if indent > 0:
                 self.worksheet.write(self.row, 0, data[0], self.levels[indent])
+            if outline > 0:
+                self.worksheet.write_number(self.row, 12, data[12], self.levels[6])
+            if outline > 1:
+                self.worksheet.write_number(self.row, 13, data[13], self.levels[6])
 
         if self.csv:
             self.csv.writerow(data)
         self.row = self.row+1
 
-    def write_datevalue (self, data, column):
-        if type(data[column]) == datetime:
+    def write_datevalue (self, data, column, hidden):
+        if type(data[column]) == datetime and hidden == False:
             self.worksheet.write_datetime(self.row, column, data[column], self.levels[4])
+        elif type(data[column]) == datetime and hidden == True:
+            self.worksheet.write_datetime(self.row, column, data[column], self.levels[5])
 
 
 def display_container (writer, containerid, tz, ):
