@@ -83,6 +83,17 @@ class igloo:
         result = self.igloo.get(url)
         return result
 
+    def get_odata_url (self, table, action):
+        """
+        Using the login key, pull and return an oData table instead of an Igloo API call
+
+        table: the table name
+        action: fully specified query or None
+        """
+        url = '{0}odata/{1}'.format(self.endpoint, table)
+        result = self.igloo.get(url, params=action)
+        return result.json()['value']
+
     def community_view (self):
         """ 
         APIv1 community/view call
