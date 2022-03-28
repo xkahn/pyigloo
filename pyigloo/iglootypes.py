@@ -87,6 +87,68 @@ class types:
             "type": "list"}
     }
 
+    odataChildTypes = {
+        "Wiki":
+            {"dtable": "dContentWiki",
+            "dkey": "wiki_key",
+            "ftable": "fContentWiki",
+            "fkey": "wiki_content_views"            },
+        "BlogChannel":
+            {"dtable": "dContentBlog",
+            "dkey": "blog_key",
+            "ftable": "fContentBlog",
+            "fkey": "blog_views"},
+        "ForumTopic":
+            {"dtable": "dContentForumTopic",
+            "dkey": "forum_key",
+            "ftable": "fContentForumTopic",
+            "fkey": "forum_topic_views"},
+        "Folder":
+            {"dtable": "dContentDocument",
+            "dkey": "content_document_key",
+            "ftable": "fContentDocument",
+            "fkey": "document_views"},
+        "FolderChannel":
+            {"dtable": "dContentDocument",
+            "dkey": "content_document_key",
+            "ftable": "fContentDocument",
+            "fkey": "document_views"},
+       "Calendar":
+            {"dtable": "dContentCalendar",
+            "dkey": "calendar_content_key",
+            "ftable": "fContentCalendar",
+            "fkey": "calendar_views"},
+    }
+
+    odatatypes = {
+        # Content
+        "WikiArticle":
+            {"dtable": "dContentWiki",
+            "dkey": "wiki_key",
+            "ftable": "fContentWiki",
+            "fkey": "wiki_content_views"            },
+        "BlogArticle":
+            {"dtable": "dContentBlog",
+            "dkey": "blog_key",
+            "ftable": "fContentBlog",
+            "fkey": "blog_views"},
+        "ForumTopic":
+            {"dtable": "dContentForumTopic",
+            "dkey": "forum_key",
+            "ftable": "fContentForumTopic",
+            "fkey": "forum_topic_views"},
+        "Document":
+            {"dtable": "dContentDocument",
+            "dkey": "content_document_key",
+            "ftable": "fContentDocument",
+            "fkey": "document_views"},
+        "CalendarEvent":
+            {"dtable": "dContentCalendar",
+            "dkey": "calendar_content_key",
+            "ftable": "fContentCalendar",
+            "fkey": "calendar_views"},
+    }
+
     def __init__ (self, mytype):
         if (type(mytype) == "<class 'str'>"):
             self.mytype = mytype
