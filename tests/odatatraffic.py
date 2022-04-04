@@ -43,7 +43,6 @@ if mytype.info["type"] != "channel":
     print ("Please pass a channel URI")
     exit()
 
-root = igloo.objects_bypath("/groups/public/librarians_guide/another_awesome_wiki")
 articles = igloo.get_all_children_from_object(root["id"])
 allarticles = [article for article in articles]
 ids = [article["id"] for article in allarticles]
