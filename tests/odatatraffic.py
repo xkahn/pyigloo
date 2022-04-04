@@ -49,17 +49,21 @@ ids = [article["id"] for article in allarticles]
 
 traffic = pyigloo.iglootraffic.igtraffic(igloo, igtype=pyigloo.iglootypes.types(root).__str__(), ids=ids)
 t = traffic.get_traffic()
+t = traffic.get_latest_views()
+traffic.half_hour_to_date()
 
 import csv
 csvwriter = csv.writer(args.writefile, quoting=csv.QUOTE_NONNUMERIC)
 headers = [
     "UUID",
     "Title",
-    "URI"]
+    "URI",
+    "Latest View"]
 [headers.append("{} Traffic".format(d)) for d in traffic.dates]
 csvwriter.writerow(headers)
 
 for article in allarticles:
     row = [article['id'], article['title'], article['href']]
+    row.append(t[article['id']]["last_view"])
     [row.append(t[article['id']][d]) for d in traffic.dates]
     csvwriter.writerow(row)
