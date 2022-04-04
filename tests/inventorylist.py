@@ -190,6 +190,8 @@ def display_channel (writer, channelid, tz, traffic=False):
     if traffic:
         traffic = pyigloo.iglootraffic.igtraffic(igloo, igtype=pyigloo.iglootypes.types(info).__str__(), ids=[child['id'] for child in children])
         t = traffic.get_traffic()
+        t = traffic.get_latest_views()
+        traffic.half_hour_to_date()
 
         for article in children:
             display_article (writer, article, tz,
@@ -230,6 +232,7 @@ def display_article (writer, article, tz, channel_info, traffic=None, t=None):
 
     if traffic:
         [row.append(t[d]) for d in traffic.dates]
+        row.append(t["last_view"])
 
     writer.writerow(row, indent=1, outline=1)
     if "numAttachments" in article and article.get("numAttachments") > 0:
@@ -353,6 +356,7 @@ if args.traffic:
     columns.append("Week Traffic")
     columns.append("Quarter Traffic")
     columns.append("Year Traffic")
+    columns.append("Last Viewed")
 
 columns.append("Notes")
 
@@ -365,6 +369,9 @@ elif mytype.info["type"] == "article":
     if args.traffic:
         traffic = pyigloo.iglootraffic.igtraffic(igloo, igtype=pyigloo.iglootypes.types(info).__str__(), ids=[article['id']])
         t = traffic.get_traffic()
+        t = traffic.get_latest_views()
+        traffic.half_hour_to_date()
+
         display_article (writer, article, args.timezone, (None, None, None), traffic=traffic, t=t[article['id']])
     else:
         display_article (writer, article, args.timezone, (None, None, None))
