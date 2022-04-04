@@ -5,6 +5,15 @@ import pyigloo.igloodates
 
 
 class igtraffic:
+    """
+    Get article view data for a list of IDs of the same type (wiki, blog, etc.)
+
+    By default, return week, quarter, and year values
+    """
+    # Igloo's odata source has views over time information, but pulling
+    # it is tricky over odata calls since we can't easily join 
+    # tables and intermediate queries may create HUGE URLs.
+
     dates = {}
     date_list = []
     maxids = 30
@@ -12,6 +21,7 @@ class igtraffic:
     typelookuptable = None
     traffic_lookup = {}
     key_lookup = {}
+    listofids = []
 
     def __init__ (self, igloosession, igtype="Wiki", dates={"Week": 7, "Quarter": 90, "Year": 365}, timezone="us_eastern", ids = None):
         today = datetime.date.today()
@@ -34,13 +44,12 @@ class igtraffic:
             self.date_list.append(halfhour)
 
         if ids is not None:
-            self.prep_ids(ids)
-
-    def prep_ids(self, ids):
-        self.listofids = [ids[i:i + self.maxids] for i in range(0, len(ids), self.maxids)]
+            self.listofids = ids
 
     def uuid_to_odatakey(self):
-        for ids in self.listofids:
+        listofids = [self.listofids[i:i + self.maxids] for i in range(0, len(self.listofids), self.maxids)]
+
+        for ids in listofids:
 
             articlesinfo = self.igloosession.get_odata_url(self.typelookuptable["dtable"], 
                                                            [("$apply", "filter(" + " or ".join( ["source_system_id eq {0}".format(id) for id in ids]) + ")")]) 
@@ -53,16 +62,19 @@ class igtraffic:
         if len(self.traffic_lookup) == 0:
             self.uuid_to_odatakey()
 
-        for ids in self.listofids:
+        listofids = [self.listofids[i:i + self.maxids] for i in range(0, len(self.listofids), self.maxids)]
+
+        for ids in listofids:
             list_of_eq = " or ".join(["{} eq {}".format(self.typelookuptable["dkey"], 
-                                                        self.traffic_lookup[tl]["key"]) for tl in self.traffic_lookup if len(self.traffic_lookup[tl]) == 1])
-            for tl in self.traffic_lookup:
-                self.traffic_lookup[tl]['checked'] = 1
+                                                        self.traffic_lookup[id]["key"]) for id in ids if len(self.traffic_lookup[id]) == 1])
+            
+            for id in ids:
+                self.traffic_lookup[id]['checked'] = 1
 
             for date in self.dates:
                 d = self.dates[date]["halfhour"]
-                for tl in self.traffic_lookup:
-                    self.traffic_lookup[tl][date] = None
+                for id in ids:
+                    self.traffic_lookup[id][date] = None
                 filter = "filter((" + list_of_eq + ") and utc_half_hour_key ge " + str(d) + ")/groupby((" + self.typelookuptable["dkey"] + "), aggregate(" + self.typelookuptable["fkey"] + " with sum as " + self.typelookuptable["fkey"] + "))"
                 traffic_stats = self.igloosession.get_odata_url(self.typelookuptable["ftable"], [("$apply", filter)])
 
