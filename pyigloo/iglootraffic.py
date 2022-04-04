@@ -77,7 +77,7 @@ class igtraffic:
             for date in self.dates:
                 d = self.dates[date]["halfhour"]
                 for id in ids:
-                    self.traffic_lookup[id][date] = None
+                    self.traffic_lookup[id][date] = 0
                 filter = "filter((" + list_of_eq + ") and utc_half_hour_key ge " + str(d) + ")/groupby((" + self.typelookuptable["dkey"] + "), aggregate(" + self.typelookuptable["fkey"] + " with sum as " + self.typelookuptable["fkey"] + "))"
                 traffic_stats = self.igloosession.get_odata_url(self.typelookuptable["ftable"], [("$apply", filter)])
 
