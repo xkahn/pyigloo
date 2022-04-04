@@ -26,6 +26,9 @@ class igtraffic:
     def __init__ (self, igloosession, igtype="Wiki", dates={"Week": 7, "Quarter": 90, "Year": 365}, timezone="us_eastern", ids = None):
         today = datetime.date.today()
         dl = []
+        self.traffic_lookup = {}
+        self.key_lookup = {}
+        self.listofids = []
         self.igloosession = igloosession
         self.typelookuptable = pyigloo.iglootypes.types.odataChildTypes[igtype]
 
