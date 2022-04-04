@@ -39,6 +39,11 @@ class types:
             {"children": True,
             "content": True,
             "type": "channel"},
+        "Folder":
+            {"Children": True,
+            "content": False,
+            "type": "channel"},
+
             
         # Content
         "WikiArticle":
@@ -53,10 +58,6 @@ class types:
             {"children": False,
             "content": True,
             "type": "article"},
-        "Folder":
-            {"Children": True,
-            "content": False,
-            "type": "channel"},
         "Document":
             {"children": False,
             "content": False,
@@ -118,6 +119,16 @@ class types:
             "dkey": "calendar_content_key",
             "ftable": "fContentCalendar",
             "fkey": "calendar_views"},
+        "ForumChannel":
+            {"dtable": "dContentForumTopic",
+            "dkey": "forum_key",
+            "ftable": "fContentForumTopic",
+            "fkey": "forum_topic_views"},
+        "MicroBlogChannel":
+            {"dtable": "dContentMicroblog",
+            "dkey": "microblog_key",
+            "ftable": "fContentMicroblog",
+            "fkey": "microblog_content_views"}
     }
 
     odatatypes = {
