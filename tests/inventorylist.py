@@ -32,6 +32,8 @@ class file_writer:
         self.doGroup = doGroup
         if workbook:
                 self.worksheet = workbook.add_worksheet()
+        else:
+                self.worksheet = None
         self.csv = csv
         if workbook:
             self.setup_styles()
@@ -112,7 +114,7 @@ class file_writer:
             self.worksheet.write_datetime(self.row, column, data[column], self.levels[5])
 
 
-def display_container (writer, containerid, tz, ):
+def display_container (writer, containerid, tz, traffic=False):
     info = igloo.objects_view(containerid)
     writer.writerow([
         '=HYPERLINK("' + os.getenv("API_ENDPOINT")[:-1] + info["href"] + '","' + info["title"] + '")',
@@ -139,11 +141,11 @@ def display_container (writer, containerid, tz, ):
     for child in children:
         childtype = pyigloo.iglootypes.types(child)
         if childtype.info["type"] == "container":
-            display_container (writer, child["id"], tz)
+            display_container (writer, child["id"], tz, traffic)
         elif childtype.info["type"] == "channel":
-            display_channel (writer, child["id"], tz)
+            display_channel (writer, child["id"], tz, traffic)
 
-def display_channel (writer, channelid, tz):
+def display_channel (writer, channelid, tz, traffic=False):
     info = igloo.objects_view(channelid)
     writer.writerow([
         '=HYPERLINK("' + os.getenv("API_ENDPOINT")[:-1] + info["href"] + '","' + info["title"] + '")',
@@ -173,9 +175,30 @@ def display_channel (writer, channelid, tz):
                              (None, None, None))
     
     children = igloo.get_all_children_from_object(channelid)
-    for article in children:
-        display_article (writer, article, tz,
-                         (info["created"]["date"], info["modified"]["date"], info["statistics"]["views"]["views"]))
+
+    # This is a generator... We need to make it a list.
+    children = [child for child in children]
+
+    # It's possible that we have a channel of channels (only folderChannel or folder?)
+    subchannels = [child for child in children if pyigloo.iglootypes.types(child).__str__() == "Folder"]
+    children = [child for child in children if pyigloo.iglootypes.types(child).__str__() != "Folder"]
+
+    if len(subchannels) > 0:
+        for subchannel in subchannels:
+            display_channel (writer, subchannel['id'], tz, traffic)
+
+    if traffic:
+        traffic = pyigloo.iglootraffic.igtraffic(igloo, igtype=pyigloo.iglootypes.types(info).__str__(), ids=[child['id'] for child in children])
+        t = traffic.get_traffic()
+
+        for article in children:
+            display_article (writer, article, tz,
+                             (info["created"]["date"], info["modified"]["date"], info["statistics"]["views"]["views"]),
+                             traffic=traffic, t=t[article['id']])
+    else:
+        for article in children:
+            display_article (writer, article, tz,
+                             (info["created"]["date"], info["modified"]["date"], info["statistics"]["views"]["views"]))
 
 def get_userinfo (user):
     if user:
@@ -183,8 +206,8 @@ def get_userinfo (user):
     else:
         return None
 
-def display_article (writer, article, tz, channel_info):
-    writer.writerow([
+def display_article (writer, article, tz, channel_info, traffic=None, t=None):
+    row = [
         '=HYPERLINK("' + os.getenv("API_ENDPOINT")[:-1] + article["href"] + '","' + article["title"] + '")',
         article["href"],
         pyigloo.igloodates.date(channel_info[0], tz).local,
@@ -203,7 +226,12 @@ def display_article (writer, article, tz, channel_info):
         article.get("numAttachments"),
         article["statistics"]["contents"]["comments"],
         article["statistics"]["contents"]["children"] + int(article.get("numAttachments", 0))
-    ], indent=1, outline=1)
+    ]
+
+    if traffic:
+        [row.append(t[d]) for d in traffic.dates]
+
+    writer.writerow(row, indent=1, outline=1)
     if "numAttachments" in article and article.get("numAttachments") > 0:
         display_attachments (writer, article, tz,
                              channel_info,
@@ -283,6 +311,7 @@ parser.add_argument('-w', '--writefile', type=argparse.FileType('w'), default='-
 parser.add_argument('-x', '--excel', help="Write output as specified Excel file")
 parser.add_argument('-t', '--timezone', type=TypeZone(), default=localtz, help="Specify a timezone for date/time objects")
 parser.add_argument('-g', '--group', help="Use row groups in Excel output. May break sorting operations.", action="store_true")
+parser.add_argument('-r', '--traffic', help="Pull view data for articles", action="store_true")
 parser.add_argument("-v", "--verbose", help="Be more verbose in output", action="store_true")
 args = parser.parse_args()
 
@@ -300,7 +329,7 @@ csvwriter = csv.writer(args.writefile, quoting=csv.QUOTE_NONNUMERIC)
 
 writer = file_writer (workbook, csvwriter, doGroup=args.group)
 
-writer.writerow(["Title",
+columns = ["Title",
                 "URI",
                 "Created (channel)",
                 "Created (article)",
@@ -317,16 +346,30 @@ writer.writerow(["Title",
                 "Version",
                 "Attachments",
                 "Comments",
-                "Children",
-                "Notes"])
+                "Children"]
+
+if args.traffic:
+    import pyigloo.iglootraffic
+    columns.append("Week Traffic")
+    columns.append("Quarter Traffic")
+    columns.append("Year Traffic")
+
+columns.append("Notes")
+
+writer.writerow(columns)
 
 if mytype.info["type"] == "channel":
-    display_channel (writer, root["id"], args.timezone)
+    display_channel (writer, root["id"], args.timezone, traffic=args.traffic)
 elif mytype.info["type"] == "article":
     article = igloo.objects_view(root["id"])
-    display_article (writer, article, args.timezone, (None, None, None))
+    if args.traffic:
+        traffic = pyigloo.iglootraffic.igtraffic(igloo, igtype=pyigloo.iglootypes.types(info).__str__(), ids=[article['id']])
+        t = traffic.get_traffic()
+        display_article (writer, article, args.timezone, (None, None, None), traffic=traffic, t=t[article['id']])
+    else:
+        display_article (writer, article, args.timezone, (None, None, None))
 elif mytype.info["type"] == "container":
-    display_container (writer, root["id"], args.timezone)
+    display_container (writer, root["id"], args.timezone, traffic=args.traffic)
 
 args.writefile.close()
 
