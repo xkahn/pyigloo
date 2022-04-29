@@ -68,11 +68,17 @@ class igtraffic:
         listofids = [self.listofids[i:i + self.maxids] for i in range(0, len(self.listofids), self.maxids)]
 
         for ids in listofids:
+
+            ids = [id for id in ids if id in self.traffic_lookup]
+
             list_of_eq = " or ".join(["{} eq {}".format(self.typelookuptable["dkey"], 
                                                         self.traffic_lookup[id]["key"]) for id in ids if 'checked' not in self.traffic_lookup[id]])
             
             for id in ids:
-                self.traffic_lookup[id]['checked'] = 1
+                if id in self.traffic_lookup:
+                    self.traffic_lookup[id]['checked'] = 1
+                else:
+                    self.traffic_lookup[id] = {'chcked': 1}
 
             for date in self.dates:
                 d = self.dates[date]["halfhour"]
@@ -99,11 +105,18 @@ class igtraffic:
         listofids = [self.listofids[i:i + self.maxids] for i in range(0, len(self.listofids), self.maxids)]
 
         for ids in listofids:
+
+            ids = [id for id in ids if id in self.traffic_lookup]
+
             list_of_eq = " or ".join(["{} eq {}".format(self.typelookuptable["dkey"], 
                                                         self.traffic_lookup[id]["key"]) for id in ids if 'utcchecked' not in self.traffic_lookup[id]])
             
             for id in ids:
-                self.traffic_lookup[id]['utcchecked'] = 1
+                if id in self.traffic_lookup:
+                    self.traffic_lookup[id]['utcchecked'] = 1
+                else:
+                    self.traffic_lookup[id] = {'utcchcked': 1}
+
 
             filter = "filter(" + list_of_eq + ")/groupby((" + self.typelookuptable["dkey"] + "), aggregate(utc_half_hour_key with max as utc_half_hour_key))"
             traffic_stats = self.igloosession.get_odata_url(self.typelookuptable["ftable"], [("$apply", filter)])
@@ -118,9 +131,12 @@ class igtraffic:
         return self.traffic_lookup
 
     def half_hour_to_date (self, timezone="us_eastern"):
-        listofids = [self.listofids[i:i + self.maxids] for i in range(0, len(self.listofids), self.maxids)]
+        listofids = [self.listofids[i:i + 10] for i in range(0, len(self.listofids), 10)]
 
         for ids in listofids:
+
+            ids = [id for id in ids if id in self.traffic_lookup]
+
             finddates = ["utc_half_hour_key eq {}".format(self.traffic_lookup[id]["utc_half_hour_key"]) for id in ids]
 
             query = [("$filter"," or ".join(finddates))]

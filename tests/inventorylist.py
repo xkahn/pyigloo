@@ -194,9 +194,13 @@ def display_channel (writer, channelid, tz, traffic=False):
         traffic.half_hour_to_date()
 
         for article in children:
-            display_article (writer, article, tz,
-                             (info["created"]["date"], info["modified"]["date"], info["statistics"]["views"]["views"]),
-                             traffic=traffic, t=t[article['id']])
+            if article['id'] in t:
+                display_article (writer, article, tz,
+                                 (info["created"]["date"], info["modified"]["date"], info["statistics"]["views"]["views"]),
+                                 traffic=traffic, t=t[article['id']])
+            else:
+                display_article (writer, article, tz,
+                                 (info["created"]["date"], info["modified"]["date"], info["statistics"]["views"]["views"]))
     else:
         for article in children:
             display_article (writer, article, tz,
