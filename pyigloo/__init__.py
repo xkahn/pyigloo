@@ -88,11 +88,49 @@ class igloo:
         Using the login key, pull and return an oData table instead of an Igloo API call
 
         table: the table name
-        action: fully specified query or None
+        action: fully specified query in a tuple or None
         """
         url = '{0}odata/{1}'.format(self.endpoint, table)
         result = self.igloo.get(url, params=action)
         return result.json()['value']
+
+    def get_paged_odata_url (self, table, action, skip=0):
+        """
+        Using the login key, pull and return an oData table instead of an Igloo API call
+
+        oData URLs are limited to 10000 rows, this funtion has a skip parameter for
+        starting at a particular row
+
+        table: the table name
+        action: fully specified query in a tuple or None
+        skip: number of rows to start from
+
+        This version returns the FULL json response to include the @odata.nextLink value
+        """
+        url = '{0}odata/{1}'.format(self.endpoint, table)
+        result = self.igloo.get(url, params=action + [("$skip", skip)])
+        return result.json()
+
+    def get_all_odata_url (self, table, action):
+        """
+        oData URLs are limited to 10000 rows, this funtion will return a generator
+        that will keep returning rows until the total space is exhausted
+
+        table: the table name
+        action: fully specified query in a tuple or None
+        """
+        items = self.get_paged_odata_url (table, action)
+        total = len(items["value"])
+        returned = 0
+        while True:
+            for item in items["value"]:
+                returned += 1
+                yield item
+
+            if "@odata.nextLink" not in items:
+                break
+
+            items = self.get_paged_odata_url (table, action, returned+1)
 
     def community_view (self):
         """ 
