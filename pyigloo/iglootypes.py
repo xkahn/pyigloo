@@ -43,6 +43,10 @@ class types:
             {"Children": True,
             "content": False,
             "type": "channel"},
+        "TaskChannel":
+            {"Children": True,
+            "content": False,
+            "type": "channel"},
 
             
         # Content
@@ -128,7 +132,12 @@ class types:
             {"dtable": "dContentMicroblog",
             "dkey": "microblog_key",
             "ftable": "fContentMicroblog",
-            "fkey": "microblog_content_views"}
+            "fkey": "microblog_content_views"},
+        "TaskChannel":
+            {"dtable": None,
+            "dkey": None,
+            "ftable": None,
+            "fkey": None}
     }
 
     odatatypes = {
