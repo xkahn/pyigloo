@@ -64,6 +64,7 @@ csvwriter.writerow(headers)
 
 for article in allarticles:
     row = [article['id'], article['title'], article['href']]
-    row.append(t[article['id']]["last_view"])
-    [row.append(t[article['id']][d]) for d in traffic.dates]
+    if article['id'] in t:
+        row.append(t[article['id']]["last_view"])
+        [row.append(t[article['id']][d]) for d in traffic.dates]
     csvwriter.writerow(row)
