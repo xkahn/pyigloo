@@ -137,6 +137,10 @@ class igtraffic:
 
             ids = [id for id in ids if id in self.traffic_lookup]
 
+            for id in ids:
+                if "utc_half_hour_key" not in self.traffic_lookup[id]:
+                    self.traffic_lookup[id]["utc_half_hour_key"] = 0
+                    
             finddates = ["utc_half_hour_key eq {}".format(self.traffic_lookup[id]["utc_half_hour_key"]) for id in ids]
 
             query = [("$filter"," or ".join(finddates))]
