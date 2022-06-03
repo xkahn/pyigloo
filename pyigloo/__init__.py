@@ -292,7 +292,7 @@ class igloo:
         result = self.igloo.get(url, headers=headers)
         return result.json()['response']
 
-    def usergroups_members_view (self, usergroupId):
+    def usergroups_members_view (self, usergroupId, maxcount=10000, startindex=None, orderby=None):
         """
         APIv1 /usergroups/{usergroupId}/members/view calls
 
@@ -303,8 +303,28 @@ class igloo:
         """
         url = '{0}{1}/usergroups/{2}/members/view'.format(self.endpoint, self.IGLOO_API_ROOT_V1, usergroupId)
         headers = {b'Accept': 'application/json'}
-        result = self.igloo.get(url, headers=headers)
+        params = {"maxcount": maxcount, "startindex": startindex}
+        result = self.igloo.get(url, headers=headers, params=params)
         return result.json()['response']
+
+    def get_all_usergroups_members_view (self, usergroupId, maxcount=10000, page=0, orderby=None):
+        """
+        Return a generator object that handles pagination for us
+        for usergroups/members/view
+        """
+        items = self.usergroups_members_view (usergroupId, maxcount=maxcount, startindex=page*maxcount, orderby=orderby)
+        total = int(items['totalCount'])
+        returned = 0
+        while True:
+            for item in items["items"]:
+                returned += 1
+                yield item
+
+            if returned >= total:
+                break
+
+            page += 1
+            items = self.usergroups_members_view (usergroupId, maxcount=maxcount, startindex=page*maxcount, orderby=orderby)
 
     def spaces_groups (self, spaceId):
         """
