@@ -4,6 +4,8 @@ import pprint
 
 from uuid import UUID
 
+# shamelessly copied (after testing) from https://stackoverflow.com/a/33245493
+# Martin Thoma @ Oct 20, 2015 at 19:43
 def is_valid_uuid(uuid_to_test, version=4):
     """
     Check if uuid_to_test is a valid UUID.
