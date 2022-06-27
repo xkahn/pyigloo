@@ -396,7 +396,7 @@ class igloo:
         url = '{0}{1}/.api/api.svc/users/{2}/update'.format(self.endpoint, self.IGLOO_API_ROOT_V1, userId)
         params = {"userId": userId, "firstName": firstName, "lastName": lastName, "smsAddress": smsAddress, "emailPrivacy": emailPrivacy, "photoPrivacy": photoPrivacy, "perferredLanguage": perferredLanguage}
         headers =  {b'Accept': '*/*'}
-        result = self.igloo.get(url, headers=headers, params=params)
+        result = self.igloo.post(url, headers=headers, params=params)
         return result.text
 
 
