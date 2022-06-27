@@ -384,17 +384,19 @@ class igloo:
         result = self.igloo.get(url, headers=headers, params=payload)
         return result.json()['response']
 
-    def users_update (self, userId, firstName=None, lastName=None, smsAddress=None, emailPrivacy=None, contactsPrivacy=None, photoPrivacy=None, perferredLanguage=None):
+    def users_update (self, userId, firstName=None, lastName=None, smsAddress=None, emailPrivacy=None, contactsPrivacy=None, photoPrivacy=None, preferredLanguage=None):
         """
         APIv1 /.api/api.svc/users/{userId}/update call
 
         Updates privacy data for the specified User in the current community. 
         https://customercare.igloosoftware.com/cmedia/api-docs/#/Users/post__api_api_svc_users__userId__update
 
+        https://source.redhat.com/.api/api.svc/users/a9f9a7af-e684-478f-9032-ea9dfe5895eb/update?emailPrivacy=Members&contactsPrivacy=Nobody&preferredLanguage=en
+
         NOTE: This API call does not support JSON and will return raw XML
         """
-        url = '{0}{1}/.api/api.svc/users/{2}/update'.format(self.endpoint, self.IGLOO_API_ROOT_V1, userId)
-        params = {"userId": userId, "firstName": firstName, "lastName": lastName, "smsAddress": smsAddress, "emailPrivacy": emailPrivacy, "photoPrivacy": photoPrivacy, "perferredLanguage": perferredLanguage}
+        url = '{0}{1}users/{2}/update'.format(self.endpoint, self.IGLOO_API_ROOT_V1, userId)
+        params = {"firstName": firstName, "lastName": lastName, "smsAddress": smsAddress, "emailPrivacy": emailPrivacy, "photoPrivacy": photoPrivacy, "preferredLanguage": preferredLanguage}
         headers =  {b'Accept': '*/*'}
         result = self.igloo.post(url, headers=headers, params=params)
         return result.text
