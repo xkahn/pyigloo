@@ -97,7 +97,7 @@ class types:
             {"dtable": "dContentWiki",
             "dkey": "wiki_key",
             "ftable": "fContentWiki",
-            "fkey": "wiki_content_views"            },
+            "fkey": "wiki_content_views"},
         "BlogChannel":
             {"dtable": "dContentBlog",
             "dkey": "blog_key",
@@ -146,7 +146,7 @@ class types:
             {"dtable": "dContentWiki",
             "dkey": "wiki_key",
             "ftable": "fContentWiki",
-            "fkey": "wiki_content_views"            },
+            "fkey": "wiki_content_views"},
         "BlogArticle":
             {"dtable": "dContentBlog",
             "dkey": "blog_key",
