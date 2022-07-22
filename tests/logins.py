@@ -38,8 +38,8 @@ args = parser.parse_args()
 igloo = pyigloo.igloo(params)
 
 timezone = "us_eastern"
-date_start = "2022-01-01T00:00:00Z"
-date_stop = "2022-04-01T00:00:00Z"
+date_start = "2022-04-01T00:00:00Z"
+date_stop = "2022-07-01T00:00:00Z"
 
 # Get the # of working days in the date range
 dt_start = datetime.strptime(date_start, '%Y-%m-%dT00:00:00Z')
@@ -68,7 +68,7 @@ data1 = [min(x, days) for x in data]
 
 import numpy as np
 
-hist, bins = np.histogram(data1, bins=[1,4,12,30,60])
+hist, bins = np.histogram(data1, bins=[1,4,12,30,max(60,days)])
 print ("Once:               " + str(hist[0]))
 print ("Monthly:            " + str(hist[1]))
 print ("Weekly:             " + str(hist[2]))
