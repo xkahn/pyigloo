@@ -13,6 +13,10 @@ class types:
             {"children": True,
             "content": False,
             "type": "container"},
+        "Model.DashboardPage":
+            {"children": True,
+            "content": False,
+            "type": "container"},
 
         # Content Channels
         "Wiki":
