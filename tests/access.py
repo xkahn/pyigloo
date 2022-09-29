@@ -58,7 +58,7 @@ print ("{")
 inherited = soup.select('.ig-accessEveryone span[class$="name"]')
 if len(inherited):
     print ('"inherited_groups":')
-    print ('["]' + inherited[0]["class"][0][3:-5] + '"]')
+    print ('["' + inherited[0]["class"][0][3:-5] + '"]')
     print (",")
 
 # Let's get the assigned groups
