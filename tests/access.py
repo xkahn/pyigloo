@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 # Get the list of groups and people who have (at least) read access to this object
 
+# Note that the "users list" is not a list of people who are members of the
+# groups. Use the /.api/api.svc/usergroups/GROUPID/members/view api call to 
+# get those users
+
 import sys
 import os
 import json
