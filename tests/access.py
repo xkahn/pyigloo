@@ -54,6 +54,10 @@ igloo = pyigloo.igloo(params)
 
 access_req = igloo.get_web_uri(args.uri + "?action=access")
 soup = BeautifulSoup(access_req.text, features="lxml")
+
+# Admin groups are obtained via a JS variable which is currently
+# defined on a line that starts with Igloo.asset_app_access
+# Find the full line here for later processing
 access_req_js = re.search(r'Igloo.asset_app_access = (.*)', access_req.text)
 
 print ("{")
@@ -73,6 +77,8 @@ print (str(id_groups).replace("'", '"'))
 print (",")
 
 # Let's get the admin groups
+# Admin groups again... Convert the regex text above into an object. But the quotes are wrong
+# and it includes some JS we have to trim out
 access_req_js_object = json.loads(access_req_js.group(1)[:-2].replace("'", '"'))
 admin_groups = access_req_js_object["access"]["groupList"]["administrators"]
 id_admin_groups = [x["id"] for x in admin_groups]
