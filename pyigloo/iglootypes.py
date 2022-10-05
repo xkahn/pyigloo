@@ -88,6 +88,16 @@ class types:
             {"children": False,
             "content": True,
             "type": "attachment"},
+        "CalendarEventInstance":
+            {"children": False,
+            "content": True,
+            "type": "article"
+            },
+        "CalendarEventException":
+            {"children": False,
+            "content": True,
+            "type": "article"
+            },
 
         # Search Results
         "IglooList":
@@ -173,11 +183,33 @@ class types:
             "fkey": "calendar_views"},
     }
 
+    v2tov1 = {
+        "wiki": "Wiki",
+        "wikiArticle": "WikiArticle",
+        "blogChannel": "BlogChannel",
+        "blogArticle": "BlogArticle",
+        "calendar": "Calendar",
+        "calendarEvent": "CalendarEvent",
+        "calendarEventException": "CalendarEventException",
+        "calendarEventInstance": "CalendarEventInstance",
+        "document": "Document",
+        "folder": "Folder",
+        "folderChannel": "FolderChannel",
+        "forumTopic": "ForumTopic",
+        "page": "Page",
+        "space": "Space",
+    }
+
     def __init__ (self, mytype):
-        if (type(mytype) == "<class 'str'>"):
+        if type(mytype) == "<class 'str'>":
             self.mytype = mytype
-        else:
+        elif "__type" in mytype:
             self.mytype = mytype["__type"]
+        else:
+            self.info = self.v2tov1[mytype["objectType"]]
+            self.mytype = self.info + ":v2"
+            return
+            
         self.info = self.iglootypes[self.mytype.split(":")[0]]
 
     def __str__(self):

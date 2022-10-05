@@ -20,10 +20,14 @@ class igloo:
     ticket = None
     igloo = None
     endpoint = None
+    communitykey = None
+    version = None
 
-    def __init__(self, info, session=None):
+    def __init__(self, info, session=None, communitykey = None):
         self.endpoint = info["API_ENDPOINT"]
         self.igloo = self.requests.session()
+        if communitykey is not None:
+            self.communitykey = communitykey
         if session == None:
             self.connect(info)
         else:
@@ -45,11 +49,15 @@ class igloo:
         cookie = self.requests.cookies.create_cookie ("iglooauth", result.json()['TokenId'])
         self.igloo.cookies.set_cookie(cookie)
         self.ticket = cookie
+        self.version = v2["version"]
 
     def adopt (self, session):
         cookie = self.requests.cookies.create_cookie ("iglooauth", session)
         self.igloo.cookies.set_cookie(cookie)
         self.ticket = cookie
+
+    def set_communitykey (self, communitykey):
+        self.communitykey = communitykey
 
     def get_session_v1 (self, params):
         """
@@ -160,12 +168,31 @@ class igloo:
         https://customercare.igloosoftware.com/cmedia/api-docs/#/Objects/get__api_api_svc_objects_byPath
         Given a URI fragment, return information about the object
 
-        This is the most common API call, allowing you to dereference a URL to an ID
+        Dereference a URL to an ID.
+        NOTE: This will record a "visit" in the analytics
         """
         url = '{0}{1}/objects/byPath'.format(self.endpoint, self.IGLOO_API_ROOT_V1)
         headers = {b'Accept': 'application/json'}
         result = self.igloo.get(url, headers=headers, params={'path': path, 'domain': domain})
         return result.json()['response']
+
+    def object_bypath_no_visit (self, path, contentType = None, limit = 1000):
+        """
+        APIv2 simulate objects_byPath call without recording a visit
+
+        Uses: https://customercare.igloosoftware.com/cmedia/api-docs/?api=api2#/Search/Search_ContentDetailed
+        Given a URI fragment, use search to return information about the object
+        """
+        url = '{0}{1}v{2}/communities/{3}/search/contentDetailed'.format(self.endpoint, self.IGLOO_API_ROOT_V2, self.version, self.communitykey)
+        headers = {b'Accept': 'application/json'}
+        params = {'parentHref': path, 'applications': contentType, 'limit': limit}
+        result = self.igloo.get(url, headers=headers, params=params)
+        j = result.json()
+        if j["numFound"] > 0:
+            for result in j["results"]:
+                if result["href"] == path:
+                    return result
+        return None
 
     def objects_view (self, objectid):
         """
