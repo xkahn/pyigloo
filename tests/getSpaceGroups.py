@@ -42,9 +42,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument("uri", help="Partial URL (URI) path to get admins for")
 args = parser.parse_args()
 
-igloo = pyigloo.igloo(params)
+igloo = pyigloo.igloo(params, communitykey = os.getenv("API_COMMUNITYKEY"))
 
-root = igloo.objects_bypath(args.uri)
+root = igloo.object_bypath_no_visit(args.uri)
 groups = igloo.spaces_groups(root['id'])
 group = [x for x in groups['items'] if x['name'] == 'Space Admins'][0]
 people = igloo.usergroups_members_view(group['id'])
