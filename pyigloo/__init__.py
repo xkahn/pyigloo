@@ -183,15 +183,10 @@ class igloo:
         Uses: https://customercare.igloosoftware.com/cmedia/api-docs/?api=api2#/Search/Search_ContentDetailed
         Given a URI fragment, use search to return information about the object
         """
-        url = '{0}{1}v{2}/communities/{3}/search/contentDetailed'.format(self.endpoint, self.IGLOO_API_ROOT_V2, self.version, self.communitykey)
-        headers = {b'Accept': 'application/json'}
-        params = {'parentHref': path, 'applications': contentType, 'limit': limit}
-        result = self.igloo.get(url, headers=headers, params=params)
-        j = result.json()
-        if j["numFound"] > 0:
-            for result in j["results"]:
-                if result["href"] == path:
-                    return result
+        items = self.get_all_search_contentdetailed(parentHref=path, applications=contentType, limit=limit)
+        for result in items:
+            if result["href"] == path:
+                return result
         return None
 
     def objects_view (self, objectid):
@@ -352,6 +347,77 @@ class igloo:
 
             page += 1
             items = self.usergroups_members_view (usergroupId, maxcount=maxcount, startindex=page*maxcount, orderby=orderby)
+
+    def search_contentdetailed (self, objectSearchType=None, facetFields=None, labels=None, authorIds=None, applications=None, updatedFrom=None, updatedTo=None, query=None, offset=0, limit=10, parentHref=None, includeMicroblog=None, includeArchived=None, searchAll=None):
+        """
+        APIv2 /api/v{apiVersion}/communities/{communityKey}/search/contentDetailed
+
+        https:/customercare.igloosoftware.com//cmedia/api-docs/?api=api2#/Search/Search_ContentDetailed
+        Run an APIv2 content search
+        """
+        url = '{0}{1}v{2}/communities/{3}/search/contentDetailed'.format(self.endpoint, self.IGLOO_API_ROOT_V2, self.version, self.communitykey)
+        headers = {b'Accept': 'application/json'}
+        params = {'objectSearchType': objectSearchType,
+                 'facetFields': facetFields,
+                 'labels': labels,
+                 'authorIds': authorIds,
+                 'applications': applications, 
+                 'updatedFrom':updatedFrom, 
+                 'updatedTo': updatedTo, 
+                 'query': query, 
+                 'offset': offset, 
+                 'limit': limit, 
+                 'parentHref': parentHref, 
+                 'includeMicroblog': includeMicroblog, 
+                 'includeArchived': includeArchived, 
+                 'searchAll': searchAll}
+        result = self.igloo.get(url, headers=headers, params=params)
+        return result.json()
+
+    def get_all_search_contentdetailed (self, objectSearchType=None, facetFields=None, labels=None, authorIds=None, applications=None, updatedFrom=None, updatedTo=None, query=None, page=0, limit=10, parentHref=None, includeMicroblog=None, includeArchived=None, searchAll=None):
+        """
+        Return a generator object that handles pagination for us
+        for search_contentdetailed
+        """
+        items = self.search_contentdetailed(offset=page*limit,
+                                            limit=limit,
+                                            objectSearchType=objectSearchType,
+                                            facetFields=facetFields,
+                                            labels=labels,
+                                            authorIds=authorIds,
+                                            applications=applications,
+                                            updatedFrom=updatedFrom,
+                                            updatedTo=updatedTo,
+                                            query=query,
+                                            parentHref=parentHref,
+                                            includeMicroblog=includeMicroblog,
+                                            includeArchived=includeArchived,
+                                            searchAll=searchAll)
+        total = int(items['numFound'])
+        returned = 0
+        while True:
+            for item in items["results"]:
+                returned += 1
+                yield item
+
+            if returned >= total:
+                break
+
+            page += 1
+            items = self.search_contentdetailed(offset=page*limit,
+                                                limit=limit,
+                                                objectSearchType=objectSearchType,
+                                                facetFields=facetFields,
+                                                labels=labels,
+                                                authorIds=authorIds,
+                                                applications=applications,
+                                                updatedFrom=updatedFrom,
+                                                updatedTo=updatedTo,
+                                                query=query,
+                                                parentHref=parentHref,
+                                                includeMicroblog=includeMicroblog,
+                                                includeArchived=includeArchived,
+                                                searchAll=searchAll)
 
     def spaces_groups (self, spaceId):
         """
