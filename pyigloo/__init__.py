@@ -13,6 +13,7 @@ Usage example:
 class igloo:
 
     import requests
+    from requests_toolbelt.utils import dump
 
     IGLOO_API_ROOT_V1 = ".api/api.svc/"
     IGLOO_API_ROOT_V2 = ".api2/api/"
@@ -220,6 +221,10 @@ class igloo:
         for objects/{objectId}/children/view
         """
         items = self.objects_children_view(objectid, pagesize, pagesize * current_page, orderby, future)
+        if not items:
+            print ("No items found")
+            print (objectid)
+            return None
         total = int(items['totalCount'])
         returned = 0
         while True:
@@ -372,6 +377,8 @@ class igloo:
                  'includeArchived': includeArchived, 
                  'searchAll': searchAll}
         result = self.igloo.get(url, headers=headers, params=params)
+        data = self.dump.dump_all(result)
+        print(data.decode('utf-8'))
         return result.json()
 
     def get_all_search_contentdetailed (self, objectSearchType=None, facetFields=None, labels=None, authorIds=None, applications=None, updatedFrom=None, updatedTo=None, query=None, page=0, limit=10, parentHref=None, includeMicroblog=None, includeArchived=None, searchAll=None):
