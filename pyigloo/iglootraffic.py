@@ -142,8 +142,11 @@ class igtraffic:
                     self.traffic_lookup[id]["utc_half_hour_key"] = 0
                     
             finddates = ["utc_half_hour_key eq {}".format(self.traffic_lookup[id]["utc_half_hour_key"]) for id in ids]
+            if len(finddates) == 0:
+                continue
 
             query = [("$filter"," or ".join(finddates))]
+            
             result = self.igloosession.get_odata_url('dUtcHalfHour', query)
 
             for id in ids:
