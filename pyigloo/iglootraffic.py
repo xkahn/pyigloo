@@ -146,7 +146,6 @@ class igtraffic:
                 continue
 
             query = [("$filter"," or ".join(finddates))]
-            
             result = self.igloosession.get_odata_url('dUtcHalfHour', query)
 
             for id in ids:
