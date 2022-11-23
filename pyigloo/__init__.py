@@ -161,6 +161,45 @@ class igloo:
         result = self.igloo.post(url)
         return result
 
+    def community_members_viewsmall (self, max=10, start=None, orderby="LNameAsc"):
+        """
+        APIv1 community/members/viewsmall call
+
+        https://customercare.igloosoftware.com/cmedia/api-docs/#/Community/get__api_api_svc_community_members_viewsmall
+        max: number of results to return
+        start: None or number of results to skip
+        orderby:  one of LNameAsc|LNameDesc|FNameAsc|FNameDesc|StatusUpdatedAsc|StatusUpdatedDesc|
+                         JoinedGroupAsc|JoinedGroupDesc|MembersLNameFNameAsc|MembersLNameFNameDesc|
+                         EmailAsc|EmailDesc|ActivatedAsc|ActivatedDesc|LastLoginAsc|LastLoginDesc
+        """
+        url = '{0}{1}/community/members/viewsmall'.format(self.endpoint, self.IGLOO_API_ROOT_V1)
+        headers =  {b'Accept': 'application/json'}
+        params = {'maxcount': max, 'startindex': start, 'orderby': orderby}
+        result = self.igloo.get(url, headers=headers, params=params)
+        return result.json()['response']
+
+    def get_all_community_members_viewsmall (self, orderby="LNameAsc", pagesize=1000, current_page=0):
+        """ 
+        Return a generator object that handles pagination for us
+        for community/members/viewsmall
+        """
+        items = self.community_members_viewsmall(orderby, max=pagesize, start=pagesize * current_page)
+        if not items:
+            print ("No members found")
+            return None
+        total = int(items['totalCount'])
+        returned = 0
+        while True:
+            for item in items["items"]:
+                returned += 1
+                yield item
+
+            if returned >= total:
+                break
+
+            current_page += 1
+            items = self.community_members_viewsmall(orderby, max=pagesize, start=pagesize * current_page)
+
     def objects_bypath (self, path, domain = None):
         """
         APIv1 objects/byPath call
