@@ -183,7 +183,7 @@ class igloo:
         Return a generator object that handles pagination for us
         for community/members/viewsmall
         """
-        items = self.community_members_viewsmall(orderby, max=pagesize, start=pagesize * current_page)
+        items = self.community_members_viewsmall(orderby=orderby, max=pagesize, start=pagesize * current_page)
         if not items:
             print ("No members found")
             return None
@@ -198,7 +198,7 @@ class igloo:
                 break
 
             current_page += 1
-            items = self.community_members_viewsmall(orderby, max=pagesize, start=pagesize * current_page)
+            items = self.community_members_viewsmall(orderby=orderby, max=pagesize, start=pagesize * current_page)
 
     def objects_bypath (self, path, domain = None):
         """
