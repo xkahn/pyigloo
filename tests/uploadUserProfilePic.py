@@ -3,6 +3,7 @@
 import sys
 import os
 import pathlib
+import magic
 
 
 from dotenv import load_dotenv
@@ -31,7 +32,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("communityKey", help="Community Key")
 parser.add_argument("userid", help="User ID")
-parser.add_argument("image", help="Path to the image")
+parser.add_argument("filePath", help="Path to the image")
 parser.add_argument("contentType", help="Content Type of the image")
 args = parser.parse_args()
 
@@ -39,10 +40,12 @@ igloo = pyigloo.igloo(params)
 
 allowedContentType = ['image/png', 'image/jpg']
 
+if args.contentType is None:
+    contentType = magic.detect_from_filename(args.filePath).mime_type
+
 if args.contentType not in allowedContentType:
     print("Allowed contentTypes "+str(" ".joing(allowedContentType))
-    return
+    exit()
 
 
-image = pathlib.Path(args.image).read_bytes()
-update_profile_picture(self, args.communityKey, args.userId, image, args.contentType)
+update_profile_picture(self, args.communityKey, args.userId, args.filePath, args.contentType)

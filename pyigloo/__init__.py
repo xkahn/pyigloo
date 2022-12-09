@@ -559,13 +559,13 @@ class igloo:
         result = self.igloo.get(url)
         return result.json()
 
-    def post_community_attachment(self, payload, communityKey):
+    def post_community_attachment(self, payload):
         """
         APIv2 .api2/api/v1/communities/{communityKey}/attachments
         
         Creates community attachment entry
         """
-        url = '{0}{1}v1/communities/{2}/attachments'.format(self.endpoint, self.IGLOO_API_ROOT_V2, communityKey)
+        url = '{0}{1}v1/communities/{2}/attachments'.format(self.endpoint, self.IGLOO_API_ROOT_V2, self.communityKey)
         result = self.igloo.post(url, data=payload)
         return result.headers['Location']
 
@@ -575,36 +575,40 @@ class igloo:
         
         Uploads attachment to entry provided from previous call
         """
+        image = pathlib.Path(args.image).read_bytes()
+        
+        contentLength = len(image)
+        contentRange = "bytes 0-"+str(contentLength-1)+"/"+str(contentLength)
+
+        headers = {"Content-Range": contentRange, "Content-Length": str(contentLength), "Content-Type": contentType}
+
         url = '{0}{1}'.format(self.endpoint, url)
         result = self.igloo.patch(url, headers=headers, data=image)
         return result
 
-    def associate_attachment_to_user(self, communityKey, attachmentKey, userId):
+    def associate_attachment_to_user(self, attachmentKey, userId):
         """
         APIv1 .api2/api/v1/communities/{communityKey}/attachments/{attachmentKey}/association/{objectId}?type=ProfilePhoto
         
         Tags attachment to user
         """
-        url = '{0}{1}v1/communities/{2}/attachments/{3}/association/{4}?type=ProfilePhoto'.format(self.endpoint, self.IGLOO_API_ROOT_V2, communityKey, attachmentKey, userId)
+        url = '{0}{1}v1/communities/{2}/attachments/{3}/association/{4}?type=ProfilePhoto'.format(self.endpoint, self.IGLOO_API_ROOT_V2, self.communityKey, attachmentKey, userId)
         result = self.igloo.post(url)
         return result
 
-    def update_profile_picture(self, communityKey, userId, image, contentType):
+    def update_profile_picture(self, userId, filePath, contentType):
         """
         Calls the below methods in order to upload a profile picture to user
         post_community_attachment
         send_image_to_url
         associate_attachment_to_user
         """
-        contentLength = len(image)
-        contentRange = "bytes 0-"+str(contentLength-1)+"/"+str(contentLength)
+        contentLength = os.path.getsize(filePath)
 
         payload = {"name": userId+".png", "contentType": contentType, "contentLength": contentLength}
-        location = self.post_community_attachment(payload, communityKey)
+        location = self.post_community_attachment(payload)
 
-        headers = {"Content-Range": contentRange, "Content-Length": str(contentLength), "Content-Type": contentType}
-
-        self.send_image_to_url(location[1:], image, headers)
+        self.send_image_to_url(location[1:], filePath, headers)
 
         attachmentKey = location.split('/')[-1]
-        self.associate_attachment_to_user(communityKey, attachmentKey, userId)
+        self.associate_attachment_to_user(attachmentKey, userId)
