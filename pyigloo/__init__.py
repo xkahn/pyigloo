@@ -9,6 +9,8 @@ Usage example:
 >>>
 
 """
+import os
+import pathlib
 
 class igloo:
 
@@ -569,13 +571,13 @@ class igloo:
         result = self.igloo.post(url, data=payload)
         return result.headers['Location']
 
-    def send_image_to_url(self, url, image, headers):
+    def send_image_to_url(self, url, image, contentType):
         """
         APIv1 .api2/api/v1/communities/{communityKey}/attachments/uploads/{attachmentKey}
         
         Uploads attachment to entry provided from previous call
         """
-        image = pathlib.Path(args.image).read_bytes()
+        image = pathlib.Path(image).read_bytes()
         
         contentLength = len(image)
         contentRange = "bytes 0-"+str(contentLength-1)+"/"+str(contentLength)
@@ -604,11 +606,12 @@ class igloo:
         associate_attachment_to_user
         """
         contentLength = os.path.getsize(filePath)
+        fileName = os.path.basename(filePath)
 
-        payload = {"name": userId+".png", "contentType": contentType, "contentLength": contentLength}
+        payload = {"name": fileName, "contentType": contentType, "contentLength": contentLength}
         location = self.post_community_attachment(payload)
 
-        self.send_image_to_url(location[1:], filePath, headers)
+        self.send_image_to_url(location[1:], filePath, contentType)
 
         attachmentKey = location.split('/')[-1]
         self.associate_attachment_to_user(attachmentKey, userId)

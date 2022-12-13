@@ -30,22 +30,22 @@ params = {
 
 import argparse
 parser = argparse.ArgumentParser()
-parser.add_argument("communityKey", help="Community Key")
-parser.add_argument("userid", help="User ID")
-parser.add_argument("filePath", help="Path to the image")
-parser.add_argument("contentType", help="Content Type of the image")
+parser.add_argument("--community_key", help="Community Key")
+parser.add_argument("--user_id", help="User ID")
+parser.add_argument("--file", help="Path to the image")
+parser.add_argument("--content_type", help="Content Type of the image", required=False)
 args = parser.parse_args()
 
 igloo = pyigloo.igloo(params)
+igloo.communityKey = args.community_key
 
 allowedContentType = ['image/png', 'image/jpg']
 
-if args.contentType is None:
-    contentType = magic.detect_from_filename(args.filePath).mime_type
+if args.content_type is None:
+    args.content_type = magic.detect_from_filename(args.file).mime_type
 
-if args.contentType not in allowedContentType:
-    print("Allowed contentTypes "+str(" ".joing(allowedContentType))
-    exit()
+if args.content_type not in allowedContentType:
+    print("Allowed contentTypes "+str(" ".join(allowedContentType)))
 
 
-update_profile_picture(self, args.communityKey, args.userId, args.filePath, args.contentType)
+igloo.update_profile_picture(args.user_id, args.file, args.content_type)
