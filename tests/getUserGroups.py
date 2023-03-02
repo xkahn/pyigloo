@@ -17,10 +17,11 @@ except NameError:
 import pyigloo
 
 def print_usergroup (group):
-    print ("{0}: {1} - {2}".format(group["id"],
-                                   group["spaceTitle"],
-                                   group["name"],
-                                   group["numMembers"]))
+    if group:
+        print ("{0}: {1} - {2}".format(group["id"],
+                                       group["spaceTitle"],
+                                       group["name"],
+                                       group["numMembers"]))
 
 params = {
         "ACCESS_KEY":   os.getenv("ACCESS_KEY"),
