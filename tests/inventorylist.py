@@ -131,8 +131,9 @@ def display_container (writer, containerid, tz, traffic=False):
         get_userinfo(info["modified"]),
         info["statistics"]["views"]["views"],
         None, # article views
-        None,
-        None,
+        None, # version
+        None, # attachments
+        None, # comments
         info["statistics"]["contents"]["children"],
         None # Notes
     ])
