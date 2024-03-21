@@ -9,6 +9,8 @@ Usage example:
 >>>
 
 """
+import os
+import pathlib
 
 class igloo:
 
@@ -558,3 +560,58 @@ class igloo:
         url = '{0}{1}/User/{2}/Get'.format(self.endpoint, self.IGLOO_API_ROOT_V2, userId)
         result = self.igloo.get(url)
         return result.json()
+
+    def post_community_attachment(self, payload):
+        """
+        APIv2 .api2/api/v1/communities/{communityKey}/attachments
+        
+        Creates community attachment entry
+        """
+        url = '{0}{1}v1/communities/{2}/attachments'.format(self.endpoint, self.IGLOO_API_ROOT_V2, self.communityKey)
+        result = self.igloo.post(url, data=payload)
+        return result.headers['Location']
+
+    def send_image_to_url(self, url, image, contentType):
+        """
+        APIv1 .api2/api/v1/communities/{communityKey}/attachments/uploads/{attachmentKey}
+        
+        Uploads attachment to entry provided from previous call
+        """
+        image = pathlib.Path(image).read_bytes()
+        
+        contentLength = len(image)
+        contentRange = "bytes 0-"+str(contentLength-1)+"/"+str(contentLength)
+
+        headers = {"Content-Range": contentRange, "Content-Length": str(contentLength), "Content-Type": contentType}
+
+        url = '{0}{1}'.format(self.endpoint, url)
+        result = self.igloo.patch(url, headers=headers, data=image)
+        return result
+
+    def associate_attachment_to_user(self, attachmentKey, userId):
+        """
+        APIv1 .api2/api/v1/communities/{communityKey}/attachments/{attachmentKey}/association/{objectId}?type=ProfilePhoto
+        
+        Tags attachment to user
+        """
+        url = '{0}{1}v1/communities/{2}/attachments/{3}/association/{4}?type=ProfilePhoto'.format(self.endpoint, self.IGLOO_API_ROOT_V2, self.communityKey, attachmentKey, userId)
+        result = self.igloo.post(url)
+        return result
+
+    def update_profile_picture(self, userId, filePath, contentType):
+        """
+        Calls the below methods in order to upload a profile picture to user
+        post_community_attachment
+        send_image_to_url
+        associate_attachment_to_user
+        """
+        contentLength = os.path.getsize(filePath)
+        fileName = os.path.basename(filePath)
+
+        payload = {"name": fileName, "contentType": contentType, "contentLength": contentLength}
+        location = self.post_community_attachment(payload)
+
+        self.send_image_to_url(location[1:], filePath, contentType)
+
+        attachmentKey = location.split('/')[-1]
+        self.associate_attachment_to_user(attachmentKey, userId)
